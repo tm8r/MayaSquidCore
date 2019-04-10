@@ -2,6 +2,8 @@
 u"""レイアウト関連"""
 from __future__ import absolute_import, division, print_function
 
+from squid.core.libs.maya import state
+
 from maya import cmds
 
 MAIN_WINDOW = "MayaWindow"
@@ -23,5 +25,7 @@ def delete_workspace_control(workspace_control, *args):
     Args:
         workspace_control (unicode): workspaceControl名
     """
+    if not state.is_enable_workspace_control():
+        return
     if cmds.workspaceControl(workspace_control, ex=True):
         cmds.deleteUI(workspace_control)
