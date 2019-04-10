@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 
 from abc import ABCMeta
 from abc import abstractmethod
-import six
+from squid.vendor import six
 
 _WINDOW_SUFFIX = "_window"
 _WORKSPACE_CONTROL_SUFFIX = "WorkspaceControl"

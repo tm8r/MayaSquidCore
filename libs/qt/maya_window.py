@@ -44,13 +44,13 @@ class MayaWindow(MayaQWidgetBaseMixin, QtWidgets.QMainWindow, MayaBaseWindow):
 class MayaDockableWindow(MayaQWidgetDockableMixin, QtWidgets.QMainWindow, MayaBaseWindow):
     u"""Qt用MayaWindow基底クラス（workspaceControl使用）"""
 
-    def __init__(self, parent=MAYA_WINDOW):
+    def __init__(self, *args, **kwargs):
         u"""initialize
 
         Args:
             parent (Qt.QtWidgets.QWidget): parent
         """
-        super(MayaDockableWindow, self).__init__(parent=parent)
+        super(MayaDockableWindow, self).__init__(*args, **kwargs)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
     @classmethod

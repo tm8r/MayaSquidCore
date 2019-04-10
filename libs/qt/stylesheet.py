@@ -3,7 +3,7 @@ u"""スタイルシート"""
 from __future__ import absolute_import, division, print_function
 
 import os
-import six
+from squid.vendor import six
 
 from squid.core.libs.files import read_text
 from squid.core.libs.singleton import SingletonType
