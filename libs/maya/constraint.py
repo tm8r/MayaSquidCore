@@ -5,8 +5,6 @@ from __future__ import absolute_import, division, print_function
 from collections import defaultdict
 from squid.vendor.enum import Enum
 
-from squid.core.libs.maya import collector
-
 from maya import cmds
 
 
@@ -29,8 +27,9 @@ class ConstraintType(Enum):
         Returns:
             ConstraintType: コンストレイントの種類
         """
+        object_type = cmds.objectType(constraint_node)
         for c in ConstraintType:
-            if c.name in constraint_node:
+            if c.name == object_type:
                 return c
         return None
 
@@ -43,17 +42,20 @@ def create_constraint(targets, node, constraint_type):
         node (unicode): コンストレイント先
         constraint_type (ConstraintType): コンストレイントの種類
 
+    Returns:
+        list of unicode: 作成されたコンストレイントのリスト
     """
     if constraint_type == ConstraintType.parentConstraint:
-        cmds.parentConstraint(targets, node)
+        return cmds.parentConstraint(targets, node)
     elif constraint_type == ConstraintType.pointConstraint:
-        cmds.pointConstraint(targets, node)
+        return cmds.pointConstraint(targets, node)
     elif constraint_type == ConstraintType.orientConstraint:
-        cmds.orientConstraint(targets, node)
+        return cmds.orientConstraint(targets, node)
     elif constraint_type == ConstraintType.scaleConstraint:
-        cmds.scaleConstraint(targets, node)
+        return cmds.scaleConstraint(targets, node)
     elif constraint_type == ConstraintType.aimConstraint:
-        cmds.aimConstraint(targets, node)
+        return cmds.aimConstraint(targets, node)
+    return []
 
 
 def get_constraint_members(node, constraint_type=None):
@@ -74,8 +76,8 @@ def get_constraint_members(node, constraint_type=None):
         members = cmds.listConnections(c + ".target")
         if not members:
             continue
-        res.extend(list(set([x for x in members if x != collector.get_short_name(c)])))
-    return res
+        res.extend(list(set([x for x in members if cmds.ls(x, l=True)[0] != c])))
+    return list(set(res))
 
 
 def get_constraint_members_reverse(node, constraint_type=None):
@@ -93,9 +95,9 @@ def get_constraint_members_reverse(node, constraint_type=None):
         return []
     res = []
     for c in constraints:
-        members = cmds.listRelatives(c, parent=True)
+        members = cmds.listRelatives(c, parent=True, f=True)
         res.extend(members)
-    return res
+    return list(set(res))
 
 
 def get_constraint_members_dict(node):
@@ -118,7 +120,7 @@ def get_constraint_members_dict(node):
         members = cmds.listConnections(c + ".target")
         if not members:
             continue
-        members = list(set([x for x in members if x != collector.get_short_name(c)]))
+        members = list(set([x for x in members if cmds.ls(x, l=True)[0] != c]))
         res[constraint_type].extend(members)
     return res
 
@@ -140,7 +142,7 @@ def get_constraint_members_dict_reverse(node):
         constraint_type = ConstraintType.get_constraint_type(c)
         if not constraint_type:
             continue
-        members = cmds.listRelatives(c, parent=True)
+        members = cmds.listRelatives(c, parent=True, f=True)
         if not members:
             continue
         res[constraint_type].extend(members)
@@ -176,7 +178,7 @@ def _get_constraints_reverse(node, constraint_type=None):
     Returns:
         list of unicode: コンストレイントノードのリスト
     """
-    constraints = cmds.listRelatives(node, type="constraint")
+    constraints = cmds.listRelatives(node, type="constraint", f=True)
     if not constraints:
         constraints = []
     constraints = list(set(constraints))
@@ -185,7 +187,7 @@ def _get_constraints_reverse(node, constraint_type=None):
     if not constraints_reverse:
         return
 
-    constraints_reverse = list(set([x for x in constraints_reverse if x not in constraints]))
+    constraints_reverse = list(set([x for x in constraints_reverse if cmds.ls(x, l=True)[0] not in constraints]))
 
     if constraint_type:
         constraints_reverse = [x for x in constraints_reverse if constraint_type.name in x]
